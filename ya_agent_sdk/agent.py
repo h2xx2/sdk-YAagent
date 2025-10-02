@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import time
 import uuid
 import requests
@@ -40,3 +41,43 @@ class YAAgent:
     def getSessionId(self) -> str:
         """Возвращает sessionId текущего чата"""
         return self.session_id
+=======
+import requests
+import json
+import time
+import random
+import string
+
+class YAAgent:
+    def __init__(self, agent_id: str, key: str):
+        self.agent_id = agent_id
+        self.key = key
+        # уникальный session_id для каждой сессии
+        self.session_id = f"session-{int(time.time())}-{''.join(random.choices(string.ascii_letters + string.digits, k=6))}"
+
+    def sendMessage(self, message: str) -> str:
+        if not message.strip():
+            return ""
+
+        url = "https://bn258wvyl7.execute-api.us-west-2.amazonaws.com/prod/public-send"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": self.key
+        }
+        payload = {
+            "message": message,
+            "agentId": self.agent_id,
+            "sessionId": self.session_id
+        }
+
+        try:
+            response = requests.post(url, headers=headers, data=json.dumps(payload))
+            response.raise_for_status()
+            data = response.json()
+            # Если тело внутри "body" как строка
+            if isinstance(data.get("body"), str):
+                data = json.loads(data["body"])
+            return data.get("response", "No response from agent")
+        except requests.RequestException as e:
+            return f"Error: {str(e)}"
+>>>>>>> 1761eda (test2)
